@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pkg/errors"
 	"github.com/smallstep/certificates/ca"
 	"github.com/smallstep/cli/command"
 	"github.com/smallstep/cli/errs"
 	"github.com/smallstep/cli/flags"
+	"github.com/smallstep/cli/jose"
 	"github.com/smallstep/cli/utils/cautils"
 	"github.com/urfave/cli"
 )
@@ -61,7 +63,27 @@ func checkHostAction(ctx *cli.Context) error {
 		return err
 	}
 
-	resp, err := client.SSHCheckHost(ctx.Args().First())
+	id, err := ca.LoadDefaultIdentity()
+	if err != nil {
+		return errors.Wrap(err, "error loading the deault x5c identity")
+	}
+
+	var token string
+	if id != nil {
+		// Get private key from given key file
+		jwk, err := jose.ParseKey(id.Key)
+		if err != nil {
+			return err
+		}
+		tokenGen := cautils.NewTokenGenerator(jwk.KeyID, "x5c-identity",
+			"/ssh/check-host", "", tokAttrs.notBefore, tokAttrs.notAfter, jwk)
+		token, err = tokenGen.Token(tokAttrs.subject, token.WithX5CFile(id.Certificate, jwk.Key))
+		if err != nil {
+			return errors.Wrap(err, "error generating idenityt x5c token for /ssh/check-host request")
+		}
+	}
+
+	resp, err := client.SSHCheckHost(ctx.Args().First(), token)
 	if err != nil {
 		return err
 	}
