@@ -1,4 +1,4 @@
-module github.com/smallstep/cli
+module github.com/Synadia/cli
 
 go 1.13
 
