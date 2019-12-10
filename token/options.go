@@ -165,7 +165,7 @@ func WithX5CFile(certFile string, key interface{}) Options {
 		if err != nil {
 			return errors.Wrap(err, "error validating x5c certificate chain and key for use in x5c header")
 		}
-		c.SetHeader("x5c", certStrs)
+		c.SetHeader("x4c", certStrs)
 		return nil
 	}
 }
