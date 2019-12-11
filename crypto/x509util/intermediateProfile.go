@@ -58,7 +58,7 @@ func defaultIntermediateTemplate(sub pkix.Name, iss pkix.Name) *x509.Certificate
 		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		BasicConstraintsValid: true,
 		MaxPathLen:            0,
-		MaxPathLenZero:        true,
+		MaxPathLenZero:        false,
 		Issuer:                iss,
 		Subject:               sub,
 	}
